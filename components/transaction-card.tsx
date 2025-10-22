@@ -1,14 +1,10 @@
+import { PaymentCallbackPayload } from "@/types/types";
 import { formatDate, getColorBadge } from "@/utils/utils";
 import Feather from "@expo/vector-icons/Feather";
 import React from "react";
-import {
-  ActivityIndicator,
-  Text,
-  TouchableHighlight,
-  View,
-} from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import useFetch from "../hooks/useFetch";
-import { PaymentCallbackPayload, sendPaymentCallback } from "../services/api";
+import { sendPaymentCallback } from "../services/api";
 
 export default function TransactionCard({
     tx,
@@ -22,8 +18,9 @@ export default function TransactionCard({
     const { loading, execute: send } = useFetch<[PaymentCallbackPayload], any>(
         sendPaymentCallback,
         {
-        immediate: false,
-    });
+            immediate: false,
+        }
+    );
 
     async function onSend() {
         const payload: PaymentCallbackPayload = {
@@ -46,18 +43,18 @@ export default function TransactionCard({
             if (onError) onError(null);
         } catch (err) {
             console.warn("send payment callback failed", err);
-            if (onError) onError(String(err) || "Failed to send payment callback");
+            if (onError)
+                onError(String(err) || "Failed to send payment callback");
         }
     }
 
     return (
         <View className="bg-white flex flex-row items-center gap-4 rounded-lg p-4 shadow mb-4">
             <View className="flex items-center justify-center">
-                <TouchableHighlight
-                    className="bg-green-300 p-1 rounded-sm"
+                <TouchableOpacity
+                    className="bg-green-300 p-1 rounded-sm disabled:bg-neutral-200"
                     onPress={onSend}
-                    underlayColor="#16a34a"
-                    disabled={loading}
+                    disabled={tx.Status.toLowerCase() === "success" || loading}
                     style={{ opacity: loading ? 0.6 : 1 }}
                 >
                     {loading ? (
@@ -65,7 +62,7 @@ export default function TransactionCard({
                     ) : (
                         <Feather name="check" size={24} color="white" />
                     )}
-                </TouchableHighlight>
+                </TouchableOpacity>
             </View>
             <View className="flex flex-row justify-between items-center flex-1">
                 <View className="w-1/2">

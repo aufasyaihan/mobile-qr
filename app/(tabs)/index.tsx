@@ -1,5 +1,6 @@
 import TransactionCard from "@/components/transaction-card";
-import React, { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import useFetch from "../../hooks/useFetch";
 import { fetchTransactions } from "../../services/api";
@@ -8,6 +9,13 @@ export default function App() {
     const { data, loading, error, execute } =
         useFetch(fetchTransactions);
     const [globalError, setGlobalError] = useState<string | null>(null);
+    const params = useLocalSearchParams();
+
+    useEffect(() => {
+        if (params.refresh === 'true') {
+            execute();
+        }
+    }, [params.refresh, execute]);
 
     return (
         <>
