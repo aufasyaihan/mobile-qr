@@ -1,5 +1,5 @@
 import { PaymentCallbackPayload } from "@/types/types";
-import { formatDate, getColorBadge } from "@/utils/utils";
+import { formatCurrency, formatDate, getColorBadge } from "@/utils/utils";
 import Feather from "@expo/vector-icons/Feather";
 import React from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
@@ -73,7 +73,9 @@ export default function TransactionCard({
                     >
                         {tx.PartnerReferenceNumber ?? tx.ReferenceNumber ?? "—"}
                     </Text>
-                    <Text className="mt-2">Rp {tx.Amount}</Text>
+                    <Text className="mt-2">
+                        Rp{formatCurrency(tx.Amount)}
+                    </Text>
                 </View>
                 <View className="flex items-end">
                     <Text
