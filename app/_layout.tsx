@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import "react-native-reanimated";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "./globals.css";
 

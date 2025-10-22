@@ -1,30 +1,50 @@
 import { useCallback, useEffect, useState } from "react";
 
-type FetchFunction<T> = () => Promise<T>;
+type AsyncFn<Args extends any[] = any[], R = any> = (...args: Args) => Promise<R>;
 
-export default function useFetch<T>(fetchFn: FetchFunction<T>) {
-    const [data, setData] = useState<T | null>(null);
+interface UseFetchOptions {
+    immediate?: boolean;
+}
+
+export default function useFetch<Args extends any[] = any[], R = any>(
+    asyncFn: AsyncFn<Args, R>,
+    options: UseFetchOptions = { immediate: true }
+) {
+    const [data, setData] = useState<R | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+    const [error, setError] = useState<any>(null);
 
-    const execute = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetchFn();
-            setData(res);
-            return res;
-        } catch (err: any) {
-            setError(err);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [fetchFn]);
+    const execute = useCallback(
+        async (...args: Args): Promise<R | null> => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await asyncFn(...args);
+                // await new Promise((resolve) => setTimeout(resolve, 5000));
+                // console.log("API response:", res);
+                setData(res ?? null);
+                return res ?? null;
+            } catch (err: any) {
+                setError(err);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [asyncFn]
+    );
 
     useEffect(() => {
-        execute();
-    }, [execute]);
+        if (options.immediate) {
+            (execute as unknown as () => Promise<R | null>)();
+        }
+    }, [execute, options.immediate]);
 
-    return { data, loading, error, refetch: execute };
+    return { data, loading, error, execute, setError } as {
+        data: R | null;
+        loading: boolean;
+        error: string | null;
+        execute: (...args: Args) => Promise<R | null>;
+        setError: (error: string | null) => void;
+    };
 }

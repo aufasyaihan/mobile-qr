@@ -26,7 +26,6 @@ export interface Transaction {
     TransactionID: string;
 }
 
-// fetchTransactions returns the inner transactions array to match the UI usage
 export async function fetchTransactions(): Promise<Transaction[]> {
     const endpoint = `${API_CONFIG.BASE_URL}/transactions`;
     const res = await fetch(endpoint, {
@@ -36,4 +35,29 @@ export async function fetchTransactions(): Promise<Transaction[]> {
     if (!res.ok) throw new Error(`Failed to fetch transactions: ${res.status}`);
         const body: TransactionResponse = await res.json();
         return body.transactions ?? [];
+}
+
+export interface PaymentCallbackPayload {
+    originalReferenceNo: string | null;
+    originalPartnerReferenceNo: string | null;
+    transactionStatusDesc: string;
+    paidTime: string;
+    amount: {
+        value: string;
+        currency: string;
+    };
+}
+
+export async function sendPaymentCallback(payload: PaymentCallbackPayload) {
+    const endpoint = `${API_CONFIG.BASE_URL}/payment`;
+    const res = await fetch(endpoint, {
+        method: "POST",
+        headers: API_CONFIG.headers,
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Failed to send payment callback: ${res.status} ${text}`);
+    }
+    return res.json().catch(() => null);
 }
