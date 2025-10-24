@@ -52,7 +52,7 @@ export default function App() {
                             </Text>
                         )}
                         {!loading && !error && (!data || data.length === 0) && (
-                            <Text>No transactions found.</Text>
+                            <Text className="w-full text-center p-4">No transactions found.</Text>
                         )}
                     </View>
                 )}

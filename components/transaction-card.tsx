@@ -1,10 +1,39 @@
 import { PaymentCallbackPayload } from "@/types/types";
-import { formatCurrency, formatDate, getColorBadge } from "@/utils/utils";
+import { formatCurrency, formatDate } from "@/utils/utils";
 import Feather from "@expo/vector-icons/Feather";
 import React from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import useFetch from "../hooks/useFetch";
 import { sendPaymentCallback } from "../services/api";
+
+function Badge({ status }: { status: string }) {
+    switch (status.toLowerCase()) {
+        case "pending":
+            return (
+                <Text className="text-sm px-2 py-1 rounded-full bg-yellow-200 text-yellow-800 uppercase">
+                    {status ?? ""}
+                </Text>
+            );
+        case "success":
+            return (
+                <Text className="text-sm px-2 py-1 rounded-full bg-green-200 text-green-800 uppercase">
+                    {status ?? ""}
+                </Text>
+            );
+        case "expired":
+            return (
+                <Text className="text-sm px-2 py-1 rounded-full bg-red-200 text-red-800">
+                    {status ?? ""}
+                </Text>
+            );
+        default:
+            return (
+                <Text className="text-sm px-2 py-1 rounded-full bg-gray-200 text-gray-800">
+                    {status ?? ""}
+                </Text>
+            );
+    }
+}
 
 export default function TransactionCard({
     tx,
@@ -73,16 +102,10 @@ export default function TransactionCard({
                     >
                         {tx.PartnerReferenceNumber ?? tx.ReferenceNumber ?? "—"}
                     </Text>
-                    <Text className="mt-2">
-                        Rp{formatCurrency(tx.Amount)}
-                    </Text>
+                    <Text className="mt-2">Rp{formatCurrency(tx.Amount)}</Text>
                 </View>
                 <View className="flex items-end">
-                    <Text
-                        className={`text-sm ${getColorBadge(tx.Status)} px-2 py-1 rounded-full`}
-                    >
-                        {tx.Status ?? ""}
-                    </Text>
+                    <Badge status={tx.Status ?? "unknown"} />
                     <Text className="text-xs text-gray-500 mt-2">
                         {formatDate(tx.PaidDate) ||
                             formatDate(tx.TransactionDate) ||
